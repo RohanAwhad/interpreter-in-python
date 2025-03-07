@@ -41,6 +41,37 @@ class Identifier(Expression, BaseModel):
     def __str__(self):
         return self.Value
 
+class IntegerLiteral(Expression, BaseModel):
+    Token: token.Token  # INT Token
+    Value: int
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    def token_literal(self) -> str: return self.Token.literal
+
+    def __str__(self):
+        return str(self.Value)
+
+
+class PrefixExpression(Expression, BaseModel):
+    Token: token.Token
+    Operator: str
+    Right: Expression | None = None
+
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return f'({self.Operator}{self.Right})'
+
+class InfixExpression(Expression, BaseModel):
+    Token: token.Token  # could PLUS, MINUS, ASTERISK ...
+    Operator: str
+    Left: Expression | None = None
+    Right: Expression | None = None
+
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return f'({self.Left} {self.Operator} {self.Right})'
 
 class LetStatement(Statement, BaseModel):
     Token: token.Token  # LET Token

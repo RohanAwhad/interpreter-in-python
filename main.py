@@ -62,6 +62,15 @@ let foobar = 838383;
 
 return 5;
 foobar;
+5;
+-5;
+!15;
+5 - 5;
+5 + 5;
+5 * 5;
+5 / 5;
+5 == 5;
+5 != 5;
 '''.strip()
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
@@ -69,6 +78,6 @@ foobar;
         program = p.parse_program()
         if len(p.errors) > 0:
             for err in p.errors: print(err)
-
-        print(program)
+        else:
+            print(program)
 
