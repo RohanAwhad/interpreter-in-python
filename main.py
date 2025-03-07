@@ -59,14 +59,16 @@ if (5 < 10) {
         inp = '''let x = 5;
 let y = 10;
 let foobar = 838383;
+
+return 5;
+foobar;
 '''.strip()
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
         p = parser.Parser(l=l)
-        statements = p.parse_program()
+        program = p.parse_program()
         if len(p.errors) > 0:
             for err in p.errors: print(err)
-        else:
-            print(statements)
 
+        print(program)
 
