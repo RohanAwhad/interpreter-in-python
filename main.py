@@ -19,12 +19,13 @@ if __name__ == '__main__':
             inp = input('>>> ')
             l = lexer.Lexer(inp=inp)
             lexer.read_char(l)
-            cnt = 0
-            while True:
-                tok = lexer.next_token(l)
-                if tok.type_ == token.EOF:
-                    break
-                print(tok)
+            p = parser.Parser(l=l)
+            program = p.parse_program()
+            if len(p.errors) > 0:
+                for err in p.errors: print(err)
+            else:
+                print(program)
+
     elif args.lexer:
         inp = """let five = 5;
 let ten = 10;
