@@ -79,6 +79,18 @@ let foo = true;
 let bar = false;
 
 - (5 + 5) * 10 - 1;
+x < y
+
+if (x < y) { x };
+if (x < y) { 5 } else { 0 } ;
+
+fn(x, y) { return x + y; }
+
+fn(x, y) { x + y; }
+
+add(2, 3);
+add(1, a + b + c * d / f + g, 2)
+add(2, 3, add(4, 5));
 '''.strip()
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)

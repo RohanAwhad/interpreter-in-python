@@ -118,3 +118,48 @@ class ExpressionStatement(Statement, BaseModel):
 
     def __str__(self):
         return str(self.Expression_) if self.Expression_ is not None else ''
+
+class BlockStatement(Statement, BaseModel):
+    Token: token.Token
+    Statements: list[Statement]
+
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return '\n'.join([str(x) for x in self.Statements])
+
+
+class IFExpression(Expression, BaseModel):
+    Token: token.Token
+    Condition: Expression
+    Consequence: BlockStatement
+    Alternative: BlockStatement | None = None
+
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self) -> str:
+        ret = f"IF {self.Condition} {self.Consequence}"
+        if self.Alternative is not None:
+            ret += f" else {self.Alternative};"
+        return ret
+
+
+class FunctionLiteral(Expression, BaseModel):
+    Token: token.Token
+    Parameters: list[Identifier];
+    Body: BlockStatement
+
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self):
+        return f"FN ({', '.join([str(x) for x in self.Parameters])}) {self.Body}"
+
+
+class CallExpression(Expression, BaseModel):
+    Token: token.Token
+    Function: Expression
+    Arguments: list[Expression]
+
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return f"{self.Function} ({', '.join([str(x) for x in self.Arguments])})"
+
