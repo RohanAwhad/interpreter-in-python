@@ -1,10 +1,11 @@
 import argparse
 
-from src import token, lexer, parser
+from src import token, lexer, parser, evaluator
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('--repl', action='store_true')
 argparser.add_argument('--lexer', action='store_true')
+argparser.add_argument('--parser', action='store_true')
 args = argparser.parse_args()
 
 # ===
@@ -24,7 +25,8 @@ if __name__ == '__main__':
             if len(p.errors) > 0:
                 for err in p.errors: print(err)
             else:
-                print(program)
+                evaluated = evaluator.eval_(program)
+                print(evaluated.Inspect())
 
     elif args.lexer:
         inp = """let five = 5;
@@ -56,7 +58,7 @@ if (5 < 10) {
             if tok.type_ == token.EOF:
                 break
 
-    else:
+    elif args.parser:
         inp = '''let x = 5;
 let y = 10;
 let foobar = 838383;
@@ -101,4 +103,19 @@ add(2, 3, add(4, 5));
             for err in p.errors: print(err)
         else:
             print(program)
+
+
+    else:
+        inp = """
+5;
+""".strip()
+        l = lexer.Lexer(inp=inp)
+        lexer.read_char(l)
+        p = parser.Parser(l=l)
+        program = p.parse_program()
+        if len(p.errors) > 0:
+            for err in p.errors: print(err)
+            exit(0)
+        ans = evaluator.eval_(program)
+        print(ans.Inspect())
 
