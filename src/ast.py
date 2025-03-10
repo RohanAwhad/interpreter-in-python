@@ -53,6 +53,14 @@ class IntegerLiteral(Expression, BaseModel):
     def __str__(self):
         return str(self.Value)
 
+class Boolean(Expression, BaseModel):
+    Token: token.Token
+    Value: bool
+
+    class Config: arbitrary_types_allowed=True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return str(self.Token.literal)
+
 
 class PrefixExpression(Expression, BaseModel):
     Token: token.Token

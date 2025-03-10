@@ -47,6 +47,9 @@ class Parser(BaseModel):
         self.register_prefix_parse_fns(token.INT, self.parse_integer_literal)
         self.register_prefix_parse_fns(token.MINUS, self.parse_prefix_expression)
         self.register_prefix_parse_fns(token.BANG, self.parse_prefix_expression)
+        self.register_prefix_parse_fns(token.TRUE, self.parse_boolean)
+        self.register_prefix_parse_fns(token.FALSE, self.parse_boolean)
+        self.register_prefix_parse_fns(token.LPARAN, self.parse_grouped_expression)
 
         self.infix_parse_fns = {}
         self.register_infix_parse_fns(token.EQ      , self.parse_infix_expression)
@@ -177,3 +180,16 @@ class Parser(BaseModel):
         Right = self.parse_expression(precedence)
         expression.Right = Right
         return expression
+
+
+    def parse_boolean(self) -> ast.Expression:
+        Token = self.curr_token
+        Value = self.is_curr_token_type(token.TRUE)
+        return ast.Boolean(Token=Token, Value=Value)
+
+    def parse_grouped_expression(self) -> ast.Expression | None:
+        self.next_token()
+        expression = self.parse_expression(Precedence.LOWEST)
+        if self.expect_peek(token.RPARAN):
+            return expression
+        return None

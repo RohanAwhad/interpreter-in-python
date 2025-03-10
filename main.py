@@ -71,6 +71,14 @@ foobar;
 5 / 5;
 5 == 5;
 5 != 5;
+-a * b + c;
+a+b*x/d;
+true;
+false;
+let foo = true;
+let bar = false;
+
+- (5 + 5) * 10 - 1;
 '''.strip()
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
