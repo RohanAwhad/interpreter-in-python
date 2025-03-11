@@ -38,3 +38,10 @@ class Error(Object):
     def __init__(self, Message: str): self. Message = Message
     def Type(self): return ERROR_OBJ
     def Inspect(self): return f"Error: {(self.Message)}"
+
+
+class Environment:
+    def __init__(self): self.e: dict[str, Object] = {}
+    def get(self, k): return self.e.get(k, None)
+    def set_(self, k, v): self.e[k] = v
+

@@ -1,6 +1,6 @@
 import argparse
 
-from src import token, lexer, parser, evaluator
+from src import token, lexer, parser, evaluator, object_
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('--repl', action='store_true')
@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
 
     if args.repl:
+        env = object_.Environment()
         while True:
             inp = input('>>> ')
             l = lexer.Lexer(inp=inp)
@@ -25,7 +26,7 @@ if __name__ == '__main__':
             if len(p.errors) > 0:
                 for err in p.errors: print(err)
             else:
-                evaluated = evaluator.eval_(program)
+                evaluated = evaluator.eval_(program, env)
                 print(evaluated.Inspect())
 
     elif args.lexer:
@@ -128,10 +129,14 @@ if (10 > 1) {
   return 1;
 }""".strip(),
             "return -true;",
-            
+
+            "let a = 5; a;",
+            "let a = 5 * 5; a;",
+            "foobar",
         ]
 
         for i in inp:
+            env = object_.Environment()
             l = lexer.Lexer(inp=i)
             lexer.read_char(l)
             p = parser.Parser(l=l)
@@ -139,7 +144,7 @@ if (10 > 1) {
             if len(p.errors) > 0:
                 for err in p.errors: print(err)
                 exit(0)
-            ans = evaluator.eval_(program)
+            ans = evaluator.eval_(program, env)
             # format input for printing
             print('\n>>>', '\n>>> '.join(i.split('\n')))
             print(ans.Type(),ans.Inspect())

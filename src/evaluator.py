@@ -4,12 +4,12 @@ NULL = object_.Null()
 TRUE = object_.Boolean(True)
 FALSE = object_.Boolean(False)
 
-def eval_(node: ast.Node) -> object_.Object:
+def eval_(node: ast.Node, env: object_.Environment) -> object_.Object:
     if isinstance(node, ast.Program):
-        return evaluate_program(node)
+        return evaluate_program(node, env)
 
     if isinstance(node, ast.ExpressionStatement):
-        return eval_(node.Expression_)
+        return eval_(node.Expression_, env)
 
     if isinstance(node, ast.IntegerLiteral):
         return object_.Integer(node.Value)
@@ -18,47 +18,55 @@ def eval_(node: ast.Node) -> object_.Object:
         return TRUE if node.Value else FALSE
 
     if isinstance(node, ast.PrefixExpression):
-        right = eval_(node.Right)
+        right = eval_(node.Right, env)
         if isinstance(right, object_.Error): return right
         return evaluate_prefix_expression(node.Operator, right)
 
     if isinstance(node, ast.InfixExpression):
-        left = eval_(node.Left)
+        left = eval_(node.Left, env)
         if isinstance(left, object_.Error): return left
-        right = eval_(node.Right)
+        right = eval_(node.Right, env)
         if isinstance(right, object_.Error): return right
         return evaluate_infix_expression(node.Operator, left, right)
 
     if isinstance(node, ast.IFExpression):
-        cond = eval_(node.Condition)
+        cond = eval_(node.Condition, env)
         if isinstance(cond, object_.Error): return cond
-        return eval_(node.Consequence) if cond.Value else eval_(node.Alternative)
+        return eval_(node.Consequence, env) if cond.Value else eval_(node.Alternative, env)
 
     if isinstance(node, ast.BlockStatement):
-        return evaluate_block_statements(node)
+        return evaluate_block_statements(node, env)
 
     if isinstance(node, ast.ReturnStatement):
-        res = eval_(node.Value)
+        res = eval_(node.Value, env)
         if isinstance(res, object_.Error): return res
         return object_.ReturnValue(res)
 
+    if isinstance(node, ast.LetStatement):
+        val = eval_(node.Value, env)
+        env.set_(node.Name.Value, val)
+
+    if isinstance(node, ast.Identifier):
+        val = env.get(node.Value)
+        if val is None: return new_error(f'identifier not found: {node.Value}')
+        return val
 
     return NULL
 
-def evaluate_program(node: ast.Node) -> object_.Object:
+def evaluate_program(node: ast.Node, env: object_.Environment) -> object_.Object:
     ret = NULL
     for stmt in node.Statements:
-        ret = eval_(stmt)
+        ret = eval_(stmt, env)
         if isinstance(ret, object_.ReturnValue):
             return ret.Value
         elif isinstance(ret, object_.Error):
             return ret
     return ret
 
-def evaluate_block_statements(node: ast.Node) -> object_.Object:
+def evaluate_block_statements(node: ast.Node, env: object_.Environment) -> object_.Object:
     ret = NULL
     for stmt in node.Statements:
-        ret = eval_(stmt)
+        ret = eval_(stmt, env)
         if isinstance(ret, object_.ReturnValue) or isinstance(ret, object_.Error):
             return ret
     return ret
