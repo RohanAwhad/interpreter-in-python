@@ -106,16 +106,41 @@ add(2, 3, add(4, 5));
 
 
     else:
-        inp = """
-5;
-""".strip()
-        l = lexer.Lexer(inp=inp)
-        lexer.read_char(l)
-        p = parser.Parser(l=l)
-        program = p.parse_program()
-        if len(p.errors) > 0:
-            for err in p.errors: print(err)
-            exit(0)
-        ans = evaluator.eval_(program)
-        print(ans.Inspect())
+        inp = [
+            """
+if (10 > 1) {
+    if (10 > 1) {
+        return 10;
+    }
+    return 1;
+}
+            """.strip(),
+            "5 + true;",
+            "5 + true; 5;",
+            "-true",
+            "true + false;",
+            "5; true + false; 5",
+            "if (10 > 1) { true + false; }",
+            """if (10 > 1) {
+  if (10 > 1) {
+    return true + false;
+  }
+  return 1;
+}""".strip(),
+            "return -true;",
+            
+        ]
+
+        for i in inp:
+            l = lexer.Lexer(inp=i)
+            lexer.read_char(l)
+            p = parser.Parser(l=l)
+            program = p.parse_program()
+            if len(p.errors) > 0:
+                for err in p.errors: print(err)
+                exit(0)
+            ans = evaluator.eval_(program)
+            # format input for printing
+            print('\n>>>', '\n>>> '.join(i.split('\n')))
+            print(ans.Type(),ans.Inspect())
 
