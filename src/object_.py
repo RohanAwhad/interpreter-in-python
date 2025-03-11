@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+from typing import Callable
 from . import ast
 
 
@@ -24,13 +25,14 @@ class Object(ABC):
     @abstractmethod
     def Inspect(self) -> str: pass
 
-INTEGER_OBJ = "INTEGER"
-BOOLEAN_OBJ = "BOOLEAN"
-NULL_OBJ = "NULL"
-STRING_OBJ = "STRING"
-RETURN_OBJ = "RETURN_VALUE"
-ERROR_OBJ = "ERROR"
+INTEGER_OBJ  = "INTEGER"
+BOOLEAN_OBJ  = "BOOLEAN"
+NULL_OBJ     = "NULL"
+STRING_OBJ   = "STRING"
+RETURN_OBJ   = "RETURN_VALUE"
+ERROR_OBJ    = "ERROR"
 FUNCTION_OBJ = "FUNCTION"
+BUILTIN_OBJ  = "BUILTIN"
 
 class Integer(Object):
     def __init__(self, Value: int): self.Value = Value
@@ -61,7 +63,6 @@ class Error(Object):
     def Type(self): return ERROR_OBJ
     def Inspect(self): return f"Error: {(self.Message)}"
 
-
 class Function(Object):
     def __init__(self, Params: list[ast.Identifier], Body: ast.BlockStatement, env: Environment):
         self.Params = Params
@@ -74,3 +75,8 @@ class Function(Object):
     def Inspect(self) -> str:
         ret = f'fn ({", ".join([str(x) for x in self.Params])})' + '{\n' + str(self.Body) + '\n}'
         return ret
+
+class BuiltIn(Object):
+    def __init__(self, func: Callable): self.func = func
+    def Type(self): return BUILTIN_OBJ
+    def Inspect(self): return "builtin function"

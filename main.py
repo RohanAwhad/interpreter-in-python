@@ -167,6 +167,8 @@ max(10, 5)
             """.strip(),
             'let x = "foobar"; x;',
             'let x = "foobar"; x+x;',
+            'len("Hello World!")',
+            'len("")',
         ]
 
         for i in inp:

@@ -1,7 +1,9 @@
 from . import ast, object_
+from .builtins_ import builtins
 
 def new_error(msg):
     return object_.Error(msg)
+
 
 NULL = object_.Null()
 TRUE = object_.Boolean(True)
@@ -55,8 +57,12 @@ def eval_(node: ast.Node, env: object_.Environment) -> object_.Object:
 
     if isinstance(node, ast.Identifier):
         val = env.get(node.Value)
-        if val is None: return new_error(f'identifier not found: {node.Value}')
-        return val
+        if val is not None: return val
+
+        val = builtins.get(node.Value, None)
+        if val is not None: return val
+
+        return new_error(f'identifier not found: {node.Value}')
 
     if isinstance(node, ast.FunctionLiteral):
         return object_.Function(Params=node.Parameters, Body=node.Body, env=env)
@@ -161,15 +167,14 @@ def evaluate_expressions(nodes: list[ast.Node], env: object_.Environment) -> lis
     return results
 
 def apply_function(func: object_.Object, args: list[object_.Object]) -> object_.Object:
-    if not isinstance(func, object_.Function): return new_error(f"not a function: {func.Type()}")
-    new_env = object_.Environment(func.env)
-    if len(func.Params) != len(args):
-        print('args')
-        print(args)
-        print('func params')
-        print(func.Params)
-        return new_error(f'len of args dont match len of parameters: {len(args)} != {len(func.Params)}')
-    for p, a in zip(func.Params, args): new_env.set_(p.Value, a)
-    evaluated = eval_(func.Body, new_env)
-    if isinstance(evaluated, object_.ReturnValue): evaluated = evaluated.Value
-    return evaluated
+    if isinstance(func, object_.Function):
+        new_env = object_.Environment(func.env)
+        if len(func.Params) != len(args): return new_error(f'len of args dont match len of parameters: {len(args)} != {len(func.Params)}')
+        for p, a in zip(func.Params, args): new_env.set_(p.Value, a)
+        evaluated = eval_(func.Body, new_env)
+        if isinstance(evaluated, object_.ReturnValue): evaluated = evaluated.Value
+        return evaluated
+
+    elif isinstance(func, object_.BuiltIn): return func.func(args)
+
+    return new_error(f"not a function: {func.Type()}")
