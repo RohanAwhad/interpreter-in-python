@@ -90,7 +90,7 @@ if (x < y) { 5 } else { 0 } ;
 
 fn(x, y) { return x + y; }
 
-fn(x, y) { x + y; }
+fn(x, y, z) { x + y; }
 
 add(2, 3);
 add(1, a + b + c * d / f + g, 2)
@@ -127,12 +127,38 @@ if (10 > 1) {
     return true + false;
   }
   return 1;
-}""".strip(),
+}
+            """.strip(),
             "return -true;",
 
             "let a = 5; a;",
             "let a = 5 * 5; a;",
             "foobar",
+            "fn(x) { x + 2; };",
+            "let identity = fn(x) { x; }; identity;",
+            "let identity = fn(x) { x; }; identity(5);",
+            "let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));",
+            "fn(x) { x; }(5)",
+
+            """
+let max = fn(x, y) { if (x > y) { x } else { y } };
+max(5, 10)
+let factorial = fn(n) { if (n == 0) { 1 } else { n * factorial(n - 1) } };
+factorial(5)
+            """.strip(),
+            """
+let newAdder = fn(x) { fn(n) { x + n } };
+let addTwo = newAdder(2);
+addTwo(2);
+            """.strip(),
+            """
+let max = fn(x, y) { if (x > y) { return x; 1000000000; } else { y } };
+max(10, 5)
+            """.strip(),
+            """
+let max = fn(x, y) { if (x > y) { x; return 1000000000; } else { y } };
+max(10, 5)
+            """.strip(),
         ]
 
         for i in inp:
@@ -144,8 +170,8 @@ if (10 > 1) {
             if len(p.errors) > 0:
                 for err in p.errors: print(err)
                 exit(0)
-            ans = evaluator.eval_(program, env)
             # format input for printing
             print('\n>>>', '\n>>> '.join(i.split('\n')))
+            ans = evaluator.eval_(program, env)
             print(ans.Type(),ans.Inspect())
 

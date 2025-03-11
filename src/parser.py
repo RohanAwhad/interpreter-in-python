@@ -254,9 +254,10 @@ class Parser(BaseModel):
         ident = self.parse_identifier()
         identifiers.append(ident)
 
-        while self.is_peek_token_type(token.COMMA) and (not self.is_curr_token_type(token.EOF)):
+        while self.is_peek_token_type(token.COMMA):
             self.next_token(); self.next_token();
             ident = self.parse_identifier()
+            identifiers.append(ident)
 
         if self.expect_peek(token.RPARAN): return identifiers
         return None

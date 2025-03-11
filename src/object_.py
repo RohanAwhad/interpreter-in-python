@@ -1,4 +1,19 @@
 from abc import abstractmethod, ABC
+from . import ast
+
+
+class Environment:
+    def __init__(self, outer: "Environment" = None):
+        self.e: dict[str, Object] = {}
+        self.outer = outer
+
+    def get(self, k):
+        ret = self.e.get(k, None)
+        return self.outer.get(k) if (ret is None and self.outer is not None) else ret
+
+    def set_(self, k, v):
+        self.e[k] = v
+
 
 ObjectType = str
 
@@ -14,6 +29,7 @@ BOOLEAN_OBJ = "BOOLEAN"
 NULL_OBJ = "NULL"
 RETURN_OBJ = "RETURN_VALUE"
 ERROR_OBJ = "ERROR"
+FUNCTION_OBJ = "FUNCTION"
 
 class Integer(Object):
     def __init__(self, Value: int): self.Value = Value
@@ -40,8 +56,15 @@ class Error(Object):
     def Inspect(self): return f"Error: {(self.Message)}"
 
 
-class Environment:
-    def __init__(self): self.e: dict[str, Object] = {}
-    def get(self, k): return self.e.get(k, None)
-    def set_(self, k, v): self.e[k] = v
+class Function(Object):
+    def __init__(self, Params: list[ast.Identifier], Body: ast.BlockStatement, env: Environment):
+        self.Params = Params
+        self.Body = Body
+        self.env = env
 
+    def Type(self) -> ObjectType:
+        return FUNCTION_OBJ
+
+    def Inspect(self) -> str:
+        ret = f'fn ({", ".join([str(x) for x in self.Params])})' + '{\n' + str(self.Body) + '\n}'
+        return ret

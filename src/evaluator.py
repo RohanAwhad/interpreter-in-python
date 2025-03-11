@@ -1,5 +1,8 @@
 from . import ast, object_
 
+def new_error(msg):
+    return object_.Error(msg)
+
 NULL = object_.Null()
 TRUE = object_.Boolean(True)
 FALSE = object_.Boolean(False)
@@ -45,11 +48,22 @@ def eval_(node: ast.Node, env: object_.Environment) -> object_.Object:
     if isinstance(node, ast.LetStatement):
         val = eval_(node.Value, env)
         env.set_(node.Name.Value, val)
+        return NULL
 
     if isinstance(node, ast.Identifier):
         val = env.get(node.Value)
         if val is None: return new_error(f'identifier not found: {node.Value}')
         return val
+
+    if isinstance(node, ast.FunctionLiteral):
+        return object_.Function(Params=node.Parameters, Body=node.Body, env=env)
+
+    if isinstance(node, ast.CallExpression):
+        func = eval_(node.Function, env)
+        if isinstance(func, object_.Error): return func
+        args = evaluate_expressions(node.Arguments, env)
+        if len(args) == 1 and isinstance(args[0], object_.Error): return args[0]
+        return apply_function(func, args)
 
     return NULL
 
@@ -118,5 +132,25 @@ def evaluate_infix_expression(operator: str, left: object_.Object, right: object
     if operator == '<': return TRUE if left.Value < right.Value else FALSE
     if operator == '>': return TRUE if left.Value > right.Value else FALSE
 
-def new_error(msg):
-    return object_.Error(msg)
+
+def evaluate_expressions(nodes: list[ast.Node], env: object_.Environment) -> list[object_.Object]:
+    results: list[object_.Object] = []
+    for node in nodes:
+        res = eval_(node, env)
+        if isinstance(res, object_.Error): return [res]
+        results.append(res)
+    return results
+
+def apply_function(func: object_.Object, args: list[object_.Object]) -> object_.Object:
+    if not isinstance(func, object_.Function): return new_error(f"not a function: {func.Type()}")
+    new_env = object_.Environment(func.env)
+    if len(func.Params) != len(args):
+        print('args')
+        print(args)
+        print('func params')
+        print(func.Params)
+        return new_error(f'len of args dont match len of parameters: {len(args)} != {len(func.Params)}')
+    for p, a in zip(func.Params, args): new_env.set_(p.Value, a)
+    evaluated = eval_(func.Body, new_env)
+    if isinstance(evaluated, object_.ReturnValue): evaluated = evaluated.Value
+    return evaluated
