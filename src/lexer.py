@@ -106,6 +106,11 @@ def next_token(l: Lexer) -> token.Token:
         num = read_num(l)
         tt = token.INT
         return new_token(tt, num)
+    if l.ch == '"':
+        s = read_string(l)
+        if s is None: return new_token(token.ILLEGAL, 'string end not found')
+        tt = token.STRING
+        return new_token(tt, s)
 
     if l.ch is None:
         tok = new_token(token.EOF, '')
@@ -114,3 +119,29 @@ def next_token(l: Lexer) -> token.Token:
     tok = new_token(token.ILLEGAL, l.ch)
     read_char(l)
     return tok
+
+def read_string(l):
+    read_char(l)
+    pos = l.pos
+    ret = ''
+    while l.ch != '"':
+        read_char(l)
+        if l.ch == '\\':
+            ret += l.inp[pos: l.pos]
+            read_char(l)
+            escape_char = get_escape_char(l.ch)
+            ret += escape_char
+            read_char(l)
+            pos = l.pos
+
+        if l.ch is None:
+            return None
+
+    ret += l.inp[pos: l.pos]
+    read_char(l)
+    return ret
+
+def get_escape_char(ch):
+    if ch == 't': return '  '
+    if ch == 'n': return '\n'
+    return ch

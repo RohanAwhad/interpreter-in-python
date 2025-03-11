@@ -17,6 +17,9 @@ def eval_(node: ast.Node, env: object_.Environment) -> object_.Object:
     if isinstance(node, ast.IntegerLiteral):
         return object_.Integer(node.Value)
 
+    if isinstance(node, ast.StringLiteral):
+        return object_.String(node.Value)
+
     if isinstance(node, ast.Boolean):
         return TRUE if node.Value else FALSE
 
@@ -111,16 +114,20 @@ def evaluate_minus_prefix_operator_expression(right: object_.Object) -> object_.
 
 def evaluate_infix_expression(operator: str, left: object_.Object, right: object_.Object) -> object_.Object:
     if left.Type() != right.Type(): return new_error(f'type mismatch: {left.Type()} {operator} {right.Type()}')
+
+    if left.Type() == object_.INTEGER_OBJ: return evaluate_integer_infix_expression(operator, left, right)
+    if left.Type() == object_.BOOLEAN_OBJ: return evaluate_boolean_infix_expression(operator, left, right)
+    if left.Type() == object_.STRING_OBJ: return evaluate_string_infix_expression(operator, left, right)
+
     if not (
         (isinstance(left, object_.Integer) or isinstance(left, object_.Boolean)) and
         (isinstance(right, object_.Integer) or isinstance(right, object_.Boolean))
         
     ): return new_error(f'unknown operator: {left.Type()} {operator} {right.Type()}')
 
+def evaluate_integer_infix_expression(operator, left, right):
     if operator == '==': return TRUE if left.Value == right.Value else FALSE
     if operator == '!=': return TRUE if left.Value != right.Value else FALSE
-    if isinstance(left, object_.Boolean) or isinstance(right, object_.Boolean): return new_error(f"unknown operator: {left.Type()} {operator} {right.Type()}")
-    # booleans as operands are only supported for '==' and '!=' operators
 
     if operator == '+': return object_.Integer(left.Value + right.Value)
     if operator == '-': return object_.Integer(left.Value - right.Value)
@@ -131,6 +138,18 @@ def evaluate_infix_expression(operator: str, left: object_.Object, right: object
 
     if operator == '<': return TRUE if left.Value < right.Value else FALSE
     if operator == '>': return TRUE if left.Value > right.Value else FALSE
+
+    return new_error(f"unknown operator: {left.Type()} {operator} {right.Type()}")
+
+def evaluate_boolean_infix_expression(operator, left, right):
+    if operator == '==': return TRUE if left.Value == right.Value else FALSE
+    if operator == '!=': return TRUE if left.Value != right.Value else FALSE
+    return new_error(f"unknown operator: {left.Type()} {operator} {right.Type()}")
+
+def evaluate_string_infix_expression(operator, left, right):
+    if operator == '+': return object_.String(left.Value + right.Value)
+    return new_error(f"unknown operator: {left.Type()} {operator} {right.Type()}")
+
 
 
 def evaluate_expressions(nodes: list[ast.Node], env: object_.Environment) -> list[object_.Object]:

@@ -163,3 +163,9 @@ class CallExpression(Expression, BaseModel):
     def token_literal(self) -> str: return self.Token.literal
     def __str__(self): return f"{self.Function} ({', '.join([str(x) for x in self.Arguments])})"
 
+class StringLiteral(Expression, BaseModel):
+    Token: token.Token
+    Value: str
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return '"'+self.Value+'"'

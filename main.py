@@ -48,7 +48,11 @@ if (5 < 10) {
 }
 
 10 == 10;
-10 != 9;""".strip()
+10 != 9;
+"hello world!"
+"foo"
+"hello\t\t\tworld!"
+""".strip() + '\n"foo\\"bar \\"""hello\\t \\t \\tworld!"'
 
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
@@ -95,6 +99,8 @@ fn(x, y, z) { x + y; }
 add(2, 3);
 add(1, a + b + c * d / f + g, 2)
 add(2, 3, add(4, 5));
+"foo";
+let x = "foobar";
 '''.strip()
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
@@ -159,6 +165,8 @@ max(10, 5)
 let max = fn(x, y) { if (x > y) { x; return 1000000000; } else { y } };
 max(10, 5)
             """.strip(),
+            'let x = "foobar"; x;',
+            'let x = "foobar"; x+x;',
         ]
 
         for i in inp:

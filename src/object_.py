@@ -27,6 +27,7 @@ class Object(ABC):
 INTEGER_OBJ = "INTEGER"
 BOOLEAN_OBJ = "BOOLEAN"
 NULL_OBJ = "NULL"
+STRING_OBJ = "STRING"
 RETURN_OBJ = "RETURN_VALUE"
 ERROR_OBJ = "ERROR"
 FUNCTION_OBJ = "FUNCTION"
@@ -44,6 +45,11 @@ class Boolean(Object):
 class Null(Object):
     def Type(self): return NULL_OBJ
     def Inspect(self) -> str: return "null"
+
+class String(Object):
+    def __init__(self, Value: str): self.Value = Value
+    def Type(self): return STRING_OBJ
+    def Inspect(self) -> str: return str(self.Value)
 
 class ReturnValue(Object):
     def __init__(self, Value: Object): self.Value = Value

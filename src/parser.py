@@ -46,6 +46,8 @@ class Parser(BaseModel):
         self.prefix_parse_fns = {}
         self.register_prefix_parse_fns(token.IDENT, self.parse_identifier)
         self.register_prefix_parse_fns(token.INT, self.parse_integer_literal)
+        self.register_prefix_parse_fns(token.STRING, self.parse_string_literal)
+
         self.register_prefix_parse_fns(token.MINUS, self.parse_prefix_expression)
         self.register_prefix_parse_fns(token.BANG, self.parse_prefix_expression)
         self.register_prefix_parse_fns(token.TRUE, self.parse_boolean)
@@ -170,6 +172,9 @@ class Parser(BaseModel):
     def parse_integer_literal(self) -> ast.Expression | None:
         return ast.IntegerLiteral(Token=self.curr_token, Value=int(self.curr_token.literal))
 
+    def parse_string_literal(self) -> ast.Expression | None:
+        return ast.StringLiteral(Token=self.curr_token, Value=str(self.curr_token.literal))
+
     def parse_prefix_expression(self) -> ast.Expression | None:
         Token = self.curr_token
         Operator = self.curr_token.literal
@@ -282,7 +287,5 @@ class Parser(BaseModel):
             return ast.CallExpression(Token=Token, Function=Function, Arguments=Arguments)
 
         return None
-
-
 
 
