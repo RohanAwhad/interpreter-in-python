@@ -38,11 +38,15 @@ BUILTIN_OBJ  = "BUILTIN"
 
 class Integer(Object):
     def __init__(self, Value: int): self.Value = Value
+    def __hash__(self): return self.Value
+    def __eq__(self, value) -> bool: return hash(self) == hash(value)
     def Type(self): return INTEGER_OBJ
     def Inspect(self) -> str: return str(self.Value)
 
 class Boolean(Object):
     def __init__(self, Value: bool): self.Value = Value
+    def __hash__(self): return self.Value
+    def __eq__(self, value) -> bool: return hash(self) == hash(value)
     def Type(self): return BOOLEAN_OBJ
     def Inspect(self): return str(self.Value)
 
@@ -52,18 +56,20 @@ class Null(Object):
 
 class String(Object):
     def __init__(self, Value: str): self.Value = Value
+    def __hash__(self): return hash(self.Value)
+    def __eq__(self, value) -> bool: return hash(self) == hash(value)
     def Type(self): return STRING_OBJ
     def Inspect(self) -> str: return str(self.Value)
 
 class Array(Object):
     def __init__(self, Elements: list[Object]): self.Elements = Elements
     def Type(self): return ARRAY_OBJ
-    def Inspect(self) -> str: return f"[{', '.join([str(x) for x in self.Elements])}]"
+    def Inspect(self) -> str: return f"[{', '.join([x.Inspect() for x in self.Elements])}]"
 
 class Hash(Object):
     def __init__(self, Elements: dict): self.Elements = Elements
     def Type(self): return HASH_OBJ
-    def Inspect(self) -> str: return '{' + ', '.join([f'{x}: {y}' for x, y in self.Elements.items()]) + '}'
+    def Inspect(self) -> str: return '{' + ', '.join([f'{x.Inspect()}: {y.Inspect()}' for x, y in self.Elements.items()]) + '}'
 
 class ReturnValue(Object):
     def __init__(self, Value: Object): self.Value = Value

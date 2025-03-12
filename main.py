@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 for err in p.errors: print(err)
             else:
                 evaluated = evaluator.eval_(program, env)
-                print(evaluated.Inspect())
+                if evaluated.Type() != object_.NULL_OBJ: print(evaluated.Inspect())
 
     elif args.lexer:
         inp = """let five = 5;

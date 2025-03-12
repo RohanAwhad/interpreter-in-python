@@ -208,9 +208,9 @@ def evaluate_index_expression(node, env):
         if right.Type() not in (object_.STRING_OBJ, object_.BOOLEAN_OBJ, object_.INTEGER_OBJ):
             return new_error(f'key type should be one of STRING, BOOLEAN or INTEGER. got={right.Type()}')
 
-        if right.Value not in left.Elements.keys():
+        if right not in left.Elements.keys():
             return new_error(f'key not found')
-        return left.Elements[right.Value]
+        return left.Elements[right]
 
 def evaluate_pairs(Elements, env):
     result = {}
@@ -219,6 +219,6 @@ def evaluate_pairs(Elements, env):
         if Key.Type() not in (object_.STRING_OBJ, object_.BOOLEAN_OBJ, object_.INTEGER_OBJ):
             return new_error(f'key type should be one of STRING, BOOLEAN or INTEGER. got={Key.Type()}')
         Value = eval_(node[1], env)
-        result[Key.Value] = Value
+        result[Key] = Value
 
     return result

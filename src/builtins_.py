@@ -50,10 +50,16 @@ def _push_builtin(args: list[object_.Object]) -> object_.Object:
     return object_.Array(new_elements)
 
 
+def _puts_builtin(args: list[object_.Object]) -> object_.Object:
+    print(' '.join([x.Inspect() for x in args]))
+    return object_.Null()
+
+
 builtins: dict[str, object_.BuiltIn] = {
     'len': object_.BuiltIn(_len_builtin),
     'first': object_.BuiltIn(_first_builtin),
     'last': object_.BuiltIn(_last_builtin),
     'rest': object_.BuiltIn(_rest_builtin),
     'push': object_.BuiltIn(_push_builtin),
+    'puts': object_.BuiltIn(_puts_builtin),
 }
