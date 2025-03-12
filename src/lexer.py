@@ -29,6 +29,8 @@ SPECIAL_CHARS_DICT = {
     ')': token.RPARAN,
     '{': token.LBRACE,
     '}': token.RBRACE,
+    '[': token.LBRACKET,
+    ']': token.RBRACKET,
     '-': token.MINUS,
     '*': token.ASTERISK,
     '/': token.SLASH,

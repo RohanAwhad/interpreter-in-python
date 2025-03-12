@@ -13,6 +13,7 @@ class Precedence(IntEnum):
   PRODUCT = auto()  # * or /
   PREFIX = auto()  # -X or !X
   CALL = auto()  # myFunction(X)
+  INDEX = auto()
 
 precedence_map = {
     token.EQ      : Precedence.EQUALS,
@@ -23,7 +24,8 @@ precedence_map = {
     token.SLASH   : Precedence.PRODUCT,
     token.LT      : Precedence.LESSGREATER,
     token.GT      : Precedence.LESSGREATER,
-    token.LPARAN: Precedence.CALL,
+    token.LPARAN  : Precedence.CALL,
+    token.LBRACKET: Precedence.INDEX,
 }
 
 class Parser(BaseModel):
@@ -53,6 +55,7 @@ class Parser(BaseModel):
         self.register_prefix_parse_fns(token.TRUE, self.parse_boolean)
         self.register_prefix_parse_fns(token.FALSE, self.parse_boolean)
         self.register_prefix_parse_fns(token.LPARAN, self.parse_grouped_expression)
+        self.register_prefix_parse_fns(token.LBRACKET, self.parse_array_literal)
 
         self.register_prefix_parse_fns(token.IF, self.parse_if_expression)
         self.register_prefix_parse_fns(token.FUNCTION, self.parse_function_literal)
@@ -67,6 +70,7 @@ class Parser(BaseModel):
         self.register_infix_parse_fns(token.LT      , self.parse_infix_expression)
         self.register_infix_parse_fns(token.GT      , self.parse_infix_expression)
         self.register_infix_parse_fns(token.LPARAN  , self.parse_call_expression)
+        self.register_infix_parse_fns(token.LBRACKET, self.parse_index_expression)
 
     def register_prefix_parse_fns(self, token_type: token.TokenType, fn: Callable) -> None:
         self.prefix_parse_fns[token_type] = fn
@@ -286,6 +290,36 @@ class Parser(BaseModel):
         if self.expect_peek(token.RPARAN):
             return ast.CallExpression(Token=Token, Function=Function, Arguments=Arguments)
 
+        return None
+
+    def parse_array_literal(self) -> ast.Expression | None:
+        Token = self.curr_token
+        Elements: list[ast.Expression] = []
+        if self.is_peek_token_type(token.RBRACKET):
+            self.next_token()
+            return ast.ArrayLiteral(Token=Token, Elements=Elements)
+
+        self.next_token()
+        expr = self.parse_expression(Precedence.LOWEST)
+        Elements.append(expr)
+        while self.is_peek_token_type(token.COMMA):
+            self.next_token(); self.next_token();
+            expr = self.parse_expression(Precedence.LOWEST)
+            Elements.append(expr)
+
+        if self.expect_peek(token.RBRACKET):
+            return ast.ArrayLiteral(Token=Token, Elements=Elements)
+
+        return None
+
+    def parse_index_expression(self, left: ast.Expression) -> ast.Expression | None:
+        Token = self.curr_token
+        Left = left
+        precedence = self.curr_precedence()
+        self.next_token()
+        Right = self.parse_expression(precedence)
+        if self.expect_peek(token.RBRACKET):
+            return ast.IndexExpression(Token=Token, Left=Left, Right=Right)
         return None
 
 

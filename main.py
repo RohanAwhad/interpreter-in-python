@@ -52,7 +52,26 @@ if (5 < 10) {
 "hello world!"
 "foo"
 "hello\t\t\tworld!"
-""".strip() + '\n"foo\\"bar \\"""hello\\t \\t \\tworld!"'
+""".strip() + '\n"foo\\"bar \\"""hello\\t \\t \\tworld!"' + """
+let myarr = [0, 1, 2, "foo", "bar", add(3, 2), -1];
+myarr[0]
+myarr[4]
+
+let map = fn(arr, func) {
+    let iter = fn(arr, newarr) {
+        if (len(arr) == 0) {
+            return newarr;
+        } else {
+            return iter(rest(arr), push(newarr, func(first(arr))));
+        }
+    }
+    return iter(arr, []);
+}
+let double = fn(x) { return x*2; }
+let arr = [1, 2, 3];
+map(arr, double);
+
+""".strip()
 
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
@@ -101,6 +120,10 @@ add(1, a + b + c * d / f + g, 2)
 add(2, 3, add(4, 5));
 "foo";
 let x = "foobar";
+
+let myarr = [0, 1, 2, "foo", "bar", add(3, 2), -1];
+myarr[0]
+myarr[4]
 '''.strip()
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
@@ -169,6 +192,26 @@ max(10, 5)
             'let x = "foobar"; x+x;',
             'len("Hello World!")',
             'len("")',
+            'let myarr = [0, 1, 2, "foo", "bar", add(3, 2), -1];',
+            'let myarr = [0, 1, 2]; myarr[0];',
+            '[0, 1, 2][2];',
+            '[0, 1, 2][3];',
+            """
+let map = fn(arr, func) {
+    let iter = fn(arr, newarr) {
+        if (len(arr) == 0) {
+            return newarr;
+        } else {
+            return iter(rest(arr), push(newarr, func(first(arr))));
+        }
+    }
+    return iter(arr, []);
+}
+let double = fn(x) { return x*2; }
+let arr = [1, 2, 3];
+map(arr, double);
+            """.strip(),
+            'let a = [];',
         ]
 
         for i in inp:

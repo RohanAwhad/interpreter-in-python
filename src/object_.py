@@ -29,6 +29,7 @@ INTEGER_OBJ  = "INTEGER"
 BOOLEAN_OBJ  = "BOOLEAN"
 NULL_OBJ     = "NULL"
 STRING_OBJ   = "STRING"
+ARRAY_OBJ  = "ARRAY"
 RETURN_OBJ   = "RETURN_VALUE"
 ERROR_OBJ    = "ERROR"
 FUNCTION_OBJ = "FUNCTION"
@@ -52,6 +53,11 @@ class String(Object):
     def __init__(self, Value: str): self.Value = Value
     def Type(self): return STRING_OBJ
     def Inspect(self) -> str: return str(self.Value)
+
+class Array(Object):
+    def __init__(self, Elements: list[Object]): self.Elements = Elements
+    def Type(self): return ARRAY_OBJ
+    def Inspect(self) -> str: return f"[{', '.join([str(x) for x in self.Elements])}]"
 
 class ReturnValue(Object):
     def __init__(self, Value: Object): self.Value = Value

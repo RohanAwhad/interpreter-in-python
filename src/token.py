@@ -12,38 +12,40 @@ class Token(BaseModel):
 # Token Types
 # ===
 
-ILLEGAL = "ILLEGAL"
-EOF = "EOF"
+ILLEGAL   = "ILLEGAL"
+EOF       = "EOF"
 
-IDENT = "IDENT"
-INT = "INT"
-STRING = 'STRING'
+IDENT     = "IDENT"
+INT       = "INT"
+STRING    = 'STRING'
 
-ASSIGN = "="
-PLUS = "+"
-MINUS = "-"
-ASTERISK = "*"
-SLASH = "/"
+ASSIGN    = "="
+PLUS      = "+"
+MINUS     = "-"
+ASTERISK  = "*"
+SLASH     = "/"
 
-LT = "<"
-GT = ">"
+LT        = "<"
+GT        = ">"
 
-BANG = '!'
-COMMA = ","
+BANG      = '!'
+COMMA     = ","
 SEMICOLON = ";"
 
-LPARAN = '('
-RPARAN = ')'
-LBRACE = '{'
-RBRACE = '}'
+LPARAN    = '('
+RPARAN    = ')'
+LBRACE    = '{'
+RBRACE    = '}'
+LBRACKET  = '['
+RBRACKET  = ']'
 
-EQ = '=='
-NOT_EQ = '!='
+EQ        = '=='
+NOT_EQ    = '!='
 
-FUNCTION = "FUNCTION"
-LET = "LET"
-TRUE = "TRUE"
-FALSE = "FALSE"
-IF = "IF"
-ELSE = "ELSE"
-RETURN = "RETURN"
+FUNCTION  = "FUNCTION"
+LET       = "LET"
+TRUE      = "TRUE"
+FALSE     = "FALSE"
+IF        = "IF"
+ELSE      = "ELSE"
+RETURN    = "RETURN"

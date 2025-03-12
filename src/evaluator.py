@@ -58,10 +58,8 @@ def eval_(node: ast.Node, env: object_.Environment) -> object_.Object:
     if isinstance(node, ast.Identifier):
         val = env.get(node.Value)
         if val is not None: return val
-
         val = builtins.get(node.Value, None)
         if val is not None: return val
-
         return new_error(f'identifier not found: {node.Value}')
 
     if isinstance(node, ast.FunctionLiteral):
@@ -73,6 +71,14 @@ def eval_(node: ast.Node, env: object_.Environment) -> object_.Object:
         args = evaluate_expressions(node.Arguments, env)
         if len(args) == 1 and isinstance(args[0], object_.Error): return args[0]
         return apply_function(func, args)
+
+    if isinstance(node, ast.ArrayLiteral):
+        Elements = evaluate_expressions(node.Elements, env)
+        if len(Elements) == 1 and isinstance(Elements[0], object_.Error): return Elements[0]
+        return object_.Array(Elements)
+
+    if isinstance(node, ast.IndexExpression):
+        return evaluate_index_expression(node, env)
 
     return NULL
 
@@ -178,3 +184,18 @@ def apply_function(func: object_.Object, args: list[object_.Object]) -> object_.
     elif isinstance(func, object_.BuiltIn): return func.func(args)
 
     return new_error(f"not a function: {func.Type()}")
+
+def evaluate_index_expression(node, env):
+    left = eval_(node.Left, env)
+    if isinstance(left, object_.Error): return left
+    if not isinstance(left, object_.Array): return new_error(f'left is not array, got {left.Type()}')
+
+    right = eval_(node.Right, env)
+    if isinstance(right, object_.Error): return right
+    if not isinstance(right, object_.Integer): return new_error(f'right is not integer, got {right.Type()}')
+
+    if right.Value >= len(left.Elements): return new_error(f'array index {right.Value} out of range for array of len {len(left.Elements)}')
+    if right.Value < 0: return new_error(f'we do not support negative indexing; got {right.Value}')
+    return left.Elements[right.Value]
+
+

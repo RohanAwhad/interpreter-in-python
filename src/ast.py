@@ -169,3 +169,19 @@ class StringLiteral(Expression, BaseModel):
     class Config: arbitrary_types_allowed = True
     def token_literal(self) -> str: return self.Token.literal
     def __str__(self): return '"'+self.Value+'"'
+
+
+class ArrayLiteral(Expression, BaseModel):
+    Token: token.Token
+    Elements: list[Expression]
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return f"[{', '.join([str(x) for x in self.Elements])}]"
+
+class IndexExpression(Expression, BaseModel):
+    Token: token.Token
+    Left: Expression
+    Right: Expression
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return f"{self.Left}[{self.Right}]"
