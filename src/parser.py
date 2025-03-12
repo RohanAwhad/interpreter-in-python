@@ -56,6 +56,7 @@ class Parser(BaseModel):
         self.register_prefix_parse_fns(token.FALSE, self.parse_boolean)
         self.register_prefix_parse_fns(token.LPARAN, self.parse_grouped_expression)
         self.register_prefix_parse_fns(token.LBRACKET, self.parse_array_literal)
+        self.register_prefix_parse_fns(token.LBRACE, self.parse_hash_literal)
 
         self.register_prefix_parse_fns(token.IF, self.parse_if_expression)
         self.register_prefix_parse_fns(token.FUNCTION, self.parse_function_literal)
@@ -322,4 +323,33 @@ class Parser(BaseModel):
             return ast.IndexExpression(Token=Token, Left=Left, Right=Right)
         return None
 
+
+    def parse_hash_literal(self) -> ast.Expression | None:
+        Token = self.curr_token
+        Elements: list[tuple[ast.Expression, ast.Expression]] = []
+        if self.is_peek_token_type(token.RBRACE):
+            self.next_token()
+            return ast.HashLiteral(Token=Token, Elements=Elements)
+
+        self.next_token()
+        pair = self.parse_pair()
+        Elements.append(pair)
+
+        while self.is_peek_token_type(token.COMMA):
+            self.next_token(); self.next_token()
+            pair = self.parse_pair()
+            Elements.append(pair)
+
+        if self.expect_peek(token.RBRACE):
+            return ast.HashLiteral(Token=Token, Elements=Elements)
+        return None
+            
+
+    def parse_pair(self) -> list[tuple[ast.Expression, ast.Expression]]:
+        Key = self.parse_expression(Precedence.LOWEST)
+        if self.expect_peek(token.COLON):
+            self.next_token()
+            Value = self.parse_expression(Precedence.LOWEST)
+            return (Key, Value)
+        raise ValueError(f'error in parse_pair. ":" not found, after {Key}')
 

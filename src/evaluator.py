@@ -80,6 +80,12 @@ def eval_(node: ast.Node, env: object_.Environment) -> object_.Object:
     if isinstance(node, ast.IndexExpression):
         return evaluate_index_expression(node, env)
 
+    if isinstance(node, ast.HashLiteral):
+        Elements = evaluate_pairs(node.Elements, env)
+        if isinstance(Elements, object_.Error): return Elements
+        return object_.Hash(Elements=Elements)
+
+
     return NULL
 
 def evaluate_program(node: ast.Node, env: object_.Environment) -> object_.Object:
@@ -188,14 +194,31 @@ def apply_function(func: object_.Object, args: list[object_.Object]) -> object_.
 def evaluate_index_expression(node, env):
     left = eval_(node.Left, env)
     if isinstance(left, object_.Error): return left
-    if not isinstance(left, object_.Array): return new_error(f'left is not array, got {left.Type()}')
+    if left.Type() not in (object_.ARRAY_OBJ, object_.HASH_OBJ): return new_error(f'left is not array or hash, got {left.Type()}')
 
     right = eval_(node.Right, env)
     if isinstance(right, object_.Error): return right
-    if not isinstance(right, object_.Integer): return new_error(f'right is not integer, got {right.Type()}')
+    if left.Type() == object_.ARRAY_OBJ:
+        if not isinstance(right, object_.Integer): return new_error(f'right is not integer, got {right.Type()}')
+        if right.Value >= len(left.Elements): return new_error(f'array index {right.Value} out of range for array of len {len(left.Elements)}')
+        if right.Value < 0: return new_error(f'we do not support negative indexing; got {right.Value}')
+        return left.Elements[right.Value]
 
-    if right.Value >= len(left.Elements): return new_error(f'array index {right.Value} out of range for array of len {len(left.Elements)}')
-    if right.Value < 0: return new_error(f'we do not support negative indexing; got {right.Value}')
-    return left.Elements[right.Value]
+    elif left.Type() == object_.HASH_OBJ:
+        if right.Type() not in (object_.STRING_OBJ, object_.BOOLEAN_OBJ, object_.INTEGER_OBJ):
+            return new_error(f'key type should be one of STRING, BOOLEAN or INTEGER. got={right.Type()}')
 
+        if right.Value not in left.Elements.keys():
+            return new_error(f'key not found')
+        return left.Elements[right.Value]
 
+def evaluate_pairs(Elements, env):
+    result = {}
+    for node in Elements:
+        Key = eval_(node[0], env)
+        if Key.Type() not in (object_.STRING_OBJ, object_.BOOLEAN_OBJ, object_.INTEGER_OBJ):
+            return new_error(f'key type should be one of STRING, BOOLEAN or INTEGER. got={Key.Type()}')
+        Value = eval_(node[1], env)
+        result[Key.Value] = Value
+
+    return result

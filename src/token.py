@@ -31,6 +31,7 @@ GT        = ">"
 BANG      = '!'
 COMMA     = ","
 SEMICOLON = ";"
+COLON     = ":"
 
 LPARAN    = '('
 RPARAN    = ')'

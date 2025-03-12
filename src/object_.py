@@ -29,7 +29,8 @@ INTEGER_OBJ  = "INTEGER"
 BOOLEAN_OBJ  = "BOOLEAN"
 NULL_OBJ     = "NULL"
 STRING_OBJ   = "STRING"
-ARRAY_OBJ  = "ARRAY"
+ARRAY_OBJ    = "ARRAY"
+HASH_OBJ     = "HASH"
 RETURN_OBJ   = "RETURN_VALUE"
 ERROR_OBJ    = "ERROR"
 FUNCTION_OBJ = "FUNCTION"
@@ -59,6 +60,11 @@ class Array(Object):
     def Type(self): return ARRAY_OBJ
     def Inspect(self) -> str: return f"[{', '.join([str(x) for x in self.Elements])}]"
 
+class Hash(Object):
+    def __init__(self, Elements: dict): self.Elements = Elements
+    def Type(self): return HASH_OBJ
+    def Inspect(self) -> str: return '{' + ', '.join([f'{x}: {y}' for x, y in self.Elements.items()]) + '}'
+
 class ReturnValue(Object):
     def __init__(self, Value: Object): self.Value = Value
     def Type(self): return RETURN_OBJ
@@ -86,3 +92,4 @@ class BuiltIn(Object):
     def __init__(self, func: Callable): self.func = func
     def Type(self): return BUILTIN_OBJ
     def Inspect(self): return "builtin function"
+

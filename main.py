@@ -71,6 +71,9 @@ let double = fn(x) { return x*2; }
 let arr = [1, 2, 3];
 map(arr, double);
 
+
+let myHash = {"name": "Jimmy", "age": 72, "band": "Led Zeppelin"};
+myHash["name"]
 """.strip()
 
         l = lexer.Lexer(inp=inp)
@@ -124,6 +127,9 @@ let x = "foobar";
 let myarr = [0, 1, 2, "foo", "bar", add(3, 2), -1];
 myarr[0]
 myarr[4]
+
+let myHash = {"name": "Jimmy", "age": 72, "band": "Led Zeppelin"};
+myHash["name"]
 '''.strip()
         l = lexer.Lexer(inp=inp)
         lexer.read_char(l)
@@ -212,6 +218,9 @@ let arr = [1, 2, 3];
 map(arr, double);
             """.strip(),
             'let a = [];',
+            '''let myHash = {"name": "Jimmy", "age": 72, "band": "Led Zeppelin"}; myHash["name"]''',
+            '''{"name": "Jimmy", "age": 72, "band": "Led Zeppelin"}["band"]''',
+            '''{"name": "Jimmy", 93: 72, "band": "Led Zeppelin"}[93]''',
         ]
 
         for i in inp:

@@ -185,3 +185,10 @@ class IndexExpression(Expression, BaseModel):
     class Config: arbitrary_types_allowed = True
     def token_literal(self) -> str: return self.Token.literal
     def __str__(self): return f"{self.Left}[{self.Right}]"
+
+class HashLiteral(Expression, BaseModel):
+    Token: token.Token
+    Elements: list[tuple[Expression, Expression]]
+    class Config: arbitrary_types_allowed = True
+    def token_literal(self) -> str: return self.Token.literal
+    def __str__(self): return '{' + ', '.join([f'{x}: {y}' for x, y in self.Elements]) + ' }'

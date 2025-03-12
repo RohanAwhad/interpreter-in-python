@@ -25,6 +25,7 @@ SPECIAL_CHARS_DICT = {
     '+': token.PLUS,
     ',': token.COMMA,
     ';': token.SEMICOLON,
+    ':': token.COLON,
     '(': token.LPARAN,
     ')': token.RPARAN,
     '{': token.LBRACE,
